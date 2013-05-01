@@ -1,0 +1,15 @@
+html, body {
+    background-color: #040404;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.target {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    margin-top: -128px;
+    margin-left: -256px;
+    border: 5px solid #0A0A0A;
+}
