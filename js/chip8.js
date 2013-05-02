@@ -18,7 +18,7 @@
  */
 
 /* jshint bitwise:false */
-/* global Memory, Display, Input */
+/* global Memory, Display, Input, Sound */
 /* exported Chip8 */
 
 var Chip8 = (function() {
@@ -40,7 +40,7 @@ var Chip8 = (function() {
     var ROM_OFFSET = 0x200;
 
     // the emulator components
-    var memory, display, input;
+    var memory, display, input, sound;
 
     // the registers
     var registers, indexRegister, delayTimer, soundTimer, programCounter, stack;
@@ -62,6 +62,7 @@ var Chip8 = (function() {
         memory = new Memory();
         display = new Display();
         input = new Input();
+        sound = new Sound();
 
         // reset the emulator state
         this.reset();
@@ -74,6 +75,9 @@ var Chip8 = (function() {
         // write the hexadecimal text sprites to memory and clear the display
         display.writeSpritesToMemory(memory);
         display.clear();
+
+        // ensure the audio component isn't running
+        sound.stop();
 
         // clear the registers and stack
         registers = new Uint8Array(REGISTER_COUNT);
@@ -116,6 +120,14 @@ var Chip8 = (function() {
         xhr.send();
     };
 
+    Chip8.prototype.mute = function() {
+        sound.mute();
+    };
+
+    Chip8.prototype.unmute = function() {
+        sound.unmute();
+    };
+
     Chip8.prototype.run = function() {
         // start the update and render cycle
         window.setInterval(function() {
@@ -136,25 +148,25 @@ var Chip8 = (function() {
                         registers[awaitingKeyPress] = activeKey;
                         awaitingKeyPress = false;
                     }
-                } else if (delayTimer === 0) { // ensure the delay time isn't active
+                } else { // ensure the delay time isn't active
                     // run the required number of steps per frame
                     for (var i = 0; i < STEPS_PER_FRAME; i++) {
                         this.step();
 
                         // process the input component to reset the key pressed states
                         input.process();
-
-                        // if the last step added to the delay timer, prevent this update from
-                        // performing any further steps
-                        if (delayTimer > 0) {
-                            break;
-                        }
                     }
 
-                    // render the
+                    // output the display to the canvas context
                     display.render(context);
-                } else {
+                }
+
+                if (delayTimer > 0) {
                     delayTimer--;
+                }
+
+                if (soundTimer > 0) {
+                    soundTimer--;
                 }
             }
         }.bind(this), 1000 / FRAMES_PER_SECOND);
@@ -259,28 +271,26 @@ var Chip8 = (function() {
                     case 0x0005: // 8xy5
                         // set VF to the borrow flag if V[x] is more than V[y] and then subtract
                         // V[y] from V[x],
-                        value = registers[registerA] - registers[registerB];
-                        registers[registerA] = value & 0xFF;
-                        registers[0xF] = value >= 0 ? 1 : 0;
+                        registers[0xF] = registers[registerA] > registers[registerB] ? 1 : 0;
+                        registers[registerA] = (registers[registerA] - registers[registerB]) & 0xFF;
                         break;
                     case 0x0006: // 8xy6
                         // set VF to the borrow flag if the least-significant bit of V[x] is 1, then
                         // then shift-right V[x] by 1
-                        registers[0xF] = registers[registerB] & 0x1;
-                        registers[registerA] = (registers[registerB] >> 1) & 0xFF;
+                        registers[0xF] = registers[registerA] & 0x1;
+                        registers[registerA] = (registers[registerA] >> 1) & 0xFF;
                         break;
                     case 0x0007: // 8xy7
                         // set VF to the borrow flag if V[y] is more than V[x], then subtract V[x]
                         // from V[y] and store the result in V[x]
-                        value = registers[registerB] - registers[registerA];
-                        registers[registerA] = value & 0xFF;
-                        registers[0xF] = value >= 0 ? 1 : 0;
+                        registers[0xF] = registers[registerB] > registers[registerA] ? 1 : 0;
+                        registers[registerA] = (registers[registerB] - registers[registerA]) & 0xFF;
                         break;
                     case 0x000E: // 8xyE
                         // set VF to the borrow flag if the most-significant bit of V[x] is 1, then
                         // then shift-left V[x] by 1
-                        registers[0xF] = registers[registerB] >> 7;
-                        registers[registerA] = (registers[registerB] << 1) & 0xFF;
+                        registers[0xF] = (registers[registerA] & 0x80) !== 0 ? 1 : 0;
+                        registers[registerA] = (registers[registerA] << 1) & 0xFF;
                         break;
                 }
                 break;
@@ -362,6 +372,10 @@ var Chip8 = (function() {
                         delayTimer = registers[register];
                         break;
                     case 0x0018: // Fx18
+                        // set the sound timer to V[x]
+                        register = (opcode & 0x0F00) >> 8;
+                        soundTimer = registers[register];
+                        sound.play(soundTimer);
                         break;
                     case 0x001E: // Fx1E
                         // add V[x] to I
@@ -379,6 +393,8 @@ var Chip8 = (function() {
                         // store BCD representation of V[x] in memory locations I, I+1, and I+2
                         register = (opcode & 0x0F00) >> 8;
                         value = registers[register];
+
+                        // OR each value by 0 to round down quickly
                         memory.writeByte(indexRegister, (value / 100) | 0);
                         memory.writeByte(indexRegister + 1, ((value / 10) | 0) % 10);
                         memory.writeByte(indexRegister + 2, (value % 100) % 10);

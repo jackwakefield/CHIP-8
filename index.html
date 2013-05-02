@@ -7,11 +7,84 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
+        <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
+        <link rel="stylesheet" href="css/vendor/bootstrap-select.min.css">
         <link rel="stylesheet" href="css/main.css">
     </head>
     <body>
-        <canvas width="512" height="256" id="target" class="target"></canvas>
+        <div class="page-container">
+            <div class="target-container">
+                <canvas width="512" height="256" id="target" class="target"></canvas>
+                <div class="target-overlay"></div>
+            </div>
+            <form id="load-game-form" class="form-inline emulator-controls">
+                <select id="game-selector" class="selectpicker">
+                    <option value="">Select a game...</option>
+                    <option value="roms/15PUZZLE">15 Puzzle</option>
+                    <option value="roms/BLINKY">Blinky</option>
+                    <option value="roms/BLITZ">Blitz</option>
+                    <option value="roms/BRIX">Brix</option>
+                    <option value="roms/CONNECT4">Connect 4</option>
+                    <option value="roms/GUESS">Guess</option>
+                    <option value="roms/HIDDEN">Hidden</option>
+                    <option value="roms/KALEID">Kaleid</option>
+                    <option value="roms/MAZE">Maze</option>
+                    <option value="roms/MERLIN">Merlin</option>
+                    <option value="roms/MISSILE">Missile</option>
+                    <option value="roms/PONG">Pong</option>
+                    <option value="roms/PONG2">Pong 2</option>
+                    <option value="roms/PUZZLE">Puzzle</option>
+                    <option value="roms/INVADERS">Space Invaders</option>
+                    <option value="roms/SYZYGY">Syzygy</option>
+                    <option value="roms/TANK">Tank</option>
+                    <option value="roms/TETRIS">Tetris</option>
+                    <option value="roms/TICTAC">Tic Tac</option>
+                    <option value="roms/UFO">UFO</option>
+                    <option value="roms/VBRIX">VBrix</option>
+                    <option value="roms/VERS">Vers</option>
+                    <option value="roms/WIPEOFF">Wipe Off</option>
+                </select>
+                <button type="submit" class="btn">Play</button>
+                <button id="toggle-sound" type="button" class="btn pull-right" rel="tooltip" data-toggle="button" data-placement="left" title="Toggle sound"><i class="icon-volume-up"></i></button>
+                <a href="#" class="btn btn-link pull-right" rel="popover" data-placement="bottom" data-trigger="hover" data-content="
+                <table class='table table-bordered controls-table'>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>Q</td>
+                            <td>W</td>
+                            <td>E</td>
+                            <td>R</td>
+                        </tr>
+                        <tr>
+                            <td>A</td>
+                            <td>S</td>
+                            <td>D</td>
+                            <td>F</td>
+                        </tr>
+                        <tr>
+                            <td>Z</td>
+                            <td>X</td>
+                            <td>C</td>
+                            <td>V</td>
+                        </tr>
+                    </tbody>
+                </table>" data-html="true" title="Keyboard Controls">Keyboard Controls</a>
+            </form>
+        </div>
 
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/bootstrap-select.min.js"></script>
+        <script src="js/vendor/jquery.cookie.js"></script>
+        <script src="js/vendor/timbre.js"></script>
+        <script src="js/sound.js"></script>
         <script src="js/memory.js"></script>
         <script src="js/display.js"></script>
         <script src="js/input.js"></script>

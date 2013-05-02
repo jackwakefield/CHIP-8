@@ -190,18 +190,24 @@ var Display = (function() {
     Display.prototype.setRow = function(x, y, value) {
         var collision = false;
 
-        // loop through eacb bit of the given value
-        for (var i = 0; i < 8; i++) {
-            // ensure the current bit isn't zero
-            if ((value & (0x80 >> i)) !== 0) {
-                // determine whether the current pixel is currently set, if so record it as a
-                // collision
-                if (this.getPixel(x + i, y) === 1) {
-                    collision = true;
+        // ensure the row doesn't exceed the height of the display
+        if (y < DISPLAY_HEIGHT) {
+            // loop through eacb bit of the given value
+            for (var i = 0; i < 8; i++) {
+                // ensure the horizontal position is not outside of the screen and that the current
+                // bit isn't zero
+                if (x < DISPLAY_WIDTH && (value & (0x80 >> i)) !== 0) {
+                    // determine whether the current pixel is currently set, if so record it as a
+                    // collision
+                    if (this.getPixel(x, y) === 1) {
+                        collision = true;
+                    }
+
+                    // toggle the current pixel state
+                    this.togglePixel(x, y);
                 }
 
-                // toggle the current pixel state
-                this.togglePixel(x + i, y);
+                x++;
             }
         }
 
@@ -220,9 +226,9 @@ var Display = (function() {
 
                 // set the fill colour based on the pixel state
                 if (modifications[index] === 0) {
-                    context.fillStyle = '#000000';
+                    context.fillStyle = '#779400';
                 } else {
-                    context.fillStyle = '#FFFFFF';
+                    context.fillStyle = '#282c06';
                 }
 
                 // draw a rectangle for the current pixel scaling the coordinates and dimensions
