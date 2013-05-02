@@ -124,8 +124,9 @@ var Input = (function() {
         for (var keyCode in keyStates) {
             if (keyStates.hasOwnProperty(keyCode) && keyStates[keyCode] === true) {
                 // retrieve the emulator key value for the active key code, convert the key code
-                // to a string as JavaScript object names are strings regardless of their set value
-                return this.getKeyValueByCode(keyCode.toString());
+                // to an integer as JavaScript object names are strings regardless of their set
+                // value
+                return this.getKeyValueByCode(parseInt(keyCode, 10));
             }
         }
 

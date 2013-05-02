@@ -148,7 +148,7 @@ var Chip8 = (function() {
                         registers[awaitingKeyPress] = activeKey;
                         awaitingKeyPress = false;
                     }
-                } else { // ensure the delay time isn't active
+                } else {
                     // run the required number of steps per frame
                     for (var i = 0; i < STEPS_PER_FRAME; i++) {
                         this.step();
